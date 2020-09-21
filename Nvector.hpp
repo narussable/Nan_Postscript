@@ -20,7 +20,7 @@ class VectorND{
 
 		int      dim(void) const;
 		double d(double, double);
-		double d(const VectorND&);
+		bool d(const VectorND&);
 
 		double&   operator [] (int);
 		double    operator [] (int) const;
@@ -55,12 +55,10 @@ VectorND::VectorND(std::initializer_list<double> array){
 //This constructor does the same as the last one, nevertheless
 // this is build with dynamic memory. The syntaxis to use it is:   
 //          VectorND <name_vector> (<double_pointer>,<int_dimension>) 
-VectorND::VectorND(double * array){
-    this->n = 0;
-    for(int index=0; index<array.size(); ++index){
-        this->V[index] = array.begin()[index];
-        ++this->n; 
-    }
+VectorND::VectorND(double * array, int dim){
+    this->n = dim; 
+    for(int index=0; index<dim; ++index)
+        this->V[index] = array[index];
 }
 
 //This constructor is used just when you don't want to define itself in that
@@ -77,17 +75,15 @@ VectorND::VectorND(int dim)
 int VectorND::dim(void) const
 {   return this->n;     }
 
-double d(double p1, double p2)
+double VectorND::d(double p1, double p2)
 {   return (p2-p1)<0 ? p1-p2 : p2-p1;   }
 
-bool d(const VectorND& s_vector){
+bool VectorND::d(const VectorND& s_vector){
     bool Same_Entries = true;
     if( this->n==s_vector.dim() ){
         double epsilon = 10E-6;
-        for(int index=0; index<this->n; ++index){
-            bool comparison = this->d(this->V[index],s_vector[index]) < epsilon;
-            Same_Entries = Same_Entries && comparison;
-        }
+        for(int index=0; index<s_vector.dim(); ++index)
+            std::cout << "perreo epstremo";
     }
     else
         std::cout << "Dimension problem in distance comparison" << std::endl;
@@ -138,11 +134,8 @@ VectorND& VectorND::operator -= (const VectorND& sum_vector){
 // -------------- EXTERN OPERATORS ----------------
 // ------------------------------------------------
 
-bool operator == (const VectorND& f_vector, const VectorND& s_vector)
-{   return this->d(s_vector);   }
-
-bool operator != (const VectorND& f_vector, const VectorND& s_vector)
-{   return ~(this->d(s_vector);     }
+bool operator == (VectorND& f_vector, VectorND& s_vector)
+{   return f_vector.d(s_vector);   }
 
 std::ostream& operator << (std::ostream& os, const VectorND& da_vector){
     os << '<';
@@ -151,5 +144,26 @@ std::ostream& operator << (std::ostream& os, const VectorND& da_vector){
     return os;
 }
 
+VectorND operator + (const VectorND& v1, const VectorND v2){
+	VectorND out( v1.dim() );
+	if( v1.dim()==v2.dim() ){
+		for(int index=0; index<v1.dim(); ++index)
+			out[index] = v1[index] + v2[index];
+	}
+	else
+		std::cout << "Dimension problems in the + operator" << std::endl;
+	return out;
+}
+
+VectorND operator - (const VectorND& v1, const VectorND v2){
+	VectorND out( v1.dim() );
+	if( v1.dim()==v2.dim() ){
+		for(int index=0; index<v1.dim(); ++index)
+			out[index] = v1[index] - v2[index];
+	}
+	else
+		std::cout << "Dimension problems in the - operator" << std::endl;
+	return out;
+}
 
 #endif
